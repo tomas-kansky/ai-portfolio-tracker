@@ -1,1 +1,71 @@
+1. Představení projektu a hlavní cíl
+Vytvoření webové SaaS aplikace pro drobné investory. Aplikace umožňuje uživatelům importovat svá investiční portfolia z populárních brokerů, vizualizovat je a získat pokročilou analýzu pomocí umělé inteligence a tržních dat (férová cena, predikce analytiků, AI shrnutí novinek). Součástí je také AI asistent pro generování nových investičních strategií na míru. Aplikace bude monetizována přes paywall.
 
+2. Rozsah funkcí (Scope)
+A. Autentizace a Monetizace (Paywall)
+
+Registrace a přihlášení uživatelů.
+
+Platební brána (např. Stripe) pro správu předplatného (freemium/premium model).
+
+Obsah aplikace je dostupný pouze po přihlášení a (případném) zaplacení.
+
+B. Správa portfolií (Max 5 na uživatele)
+
+Import dat: Nahrání portfolia prostřednictvím CSV exportu z platforem jako Trading 212, XTB, eToro. Backend zajistí parsování (čtení) a normalizaci těchto odlišných formátů do jednotné databáze.
+
+Manuální přidání: Možnost ručně přidat ticker a počet kusů.
+
+Dashboard: Vykreslení portfolia do přehledných grafů (koláčový graf rozložení, vývoj hodnoty).
+
+C. Analýza akcie (Stock Detail View)
+Při rozkliknutí konkrétní akcie z portfolia uživatel uvidí:
+
+Férovou cenu (Fair Value): Spočítanou na backendu na základě fundamentálních dat z finančního API (např. DCF model).
+
+Predikce analytiků: Cílová cena (Price Target) na dalších 12 měsíců (čerpáno z finančního API).
+
+AI Shrnutí: Textově vygenerovaný přehled toho, co se s firmou aktuálně děje (earnings calls, novinky, sentiment), napojeno na LLM API.
+
+D. AI Hodnocení a Generátor portfolia
+
+Zhodnocení existujícího portfolia: AI analyzuje nahrané portfolio (diverzifikace, rizikovost) a vydá slovní hodnocení.
+
+Generátor z promptu: Textové pole, kam uživatel napíše požadavek (např. "Chci defenzivní dividendové portfolio s důrazem na farmacii"). Systém vygeneruje navržené portfolio (seznam tickerů a jejich procentuální zastoupení).
+
+3. Návrh architektury a technologický stack
+Očekávám od agentury finální doporučení, ale výchozí preference je následující:
+
+Frontend: React (Next.js) nebo Vue (Nuxt.js). Zajištění rychlého chodu a responzivity. Pro grafy knihovny jako Recharts nebo Chart.js.
+
+Backend: Python (FastAPI) – vzhledem k nutnosti zpracovávat datové analýzy, CSV soubory od brokerů a intenzivně komunikovat s AI modely je Python nejvhodnější volbou. Alternativou je Node.js (NestJS).
+
+Databáze: PostgreSQL pro bezpečné ukládání uživatelských účtů a struktur portfolií.
+
+Zásadní integrace třetích stran:
+
+AI Model: OpenAI API (GPT-4o) nebo Anthropic API (Claude 3.5).
+
+Finanční data: Financial Modeling Prep (FMP), Finnhub nebo Alpha Vantage (pro aktuální ceny, analytické odhady a fundamenty pro výpočet férové ceny).
+
+Platby: Stripe.
+
+4. Požadavky na bezpečnost aplikací
+Vzhledem k tomu, že aplikace pracuje s finančními daty uživatelů, je nutné dodržet vysoké bezpečnostní standardy:
+
+Autentizace a Autorizace: Implementace standardu OAuth 2.0 / JWT tokenů. Zajištění, že uživatel má přístup striktně pouze k portfoliím svázaným s jeho ID (Tenant isolation).
+
+Ochrana dat (Data at Rest & in Transit): Veškerá komunikace musí probíhat přes šifrovaný protokol HTTPS (TLS 1.2+). Citlivá data v databázi (osobní údaje, e-maily) by měla být šifrována na úrovni disku i tabulek (AES-256).
+
+Zpracování CSV: Nahrané CSV soubory nesmí být trvale ukládány na server jako soubory (riziko malwaru a úniku dat). Po vytažení dat do paměti a uložení do databáze musí být soubor okamžitě smazán. Striktní sanitizace vstupů proti XSS a SQL Injection.
+
+API Security: Rate limiting na všechny endpointy, aby se zabránilo DDoS útokům nebo zneužití drahých volání AI a finančních API. Bezpečné ukládání API klíčů (OpenAI, Stripe, Finanční API) do Environment Variables/Secret Manageru, nikdy v repozitáři.
+
+5. Výstupy a fáze (Deliverables)
+Wireframy / UI Design: Před schválením vývoje požaduji náhled hlavních obrazovek (Dashboard, Detail akcie, Generátor).
+
+Architektonický návrh: Potvrzení finálního stacku a výběr poskytovatele finančních dat.
+
+MVP Vývoj: Dodání funkční verze zaměřené na CSV import a základní AI analýzu.
+
+Nasazení (Deployment): Nasazení na cloudovou infrastrukturu (AWS, Vercel, nebo DigitalOcean).
